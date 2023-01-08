@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>cf2cf5d8-8491-4c22-abc1-5de22ddd93e2</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IdentityServer4" Version="4.1.2" />  
+        <PackageReference Include="StackExchange.Redis" Version="2.6.86" />
+        <PackageReference Include="Polly" Version="7.2.3" />
+        <PackageReference Include="Google.Cloud.PubSub.V1" Version="3.2.0" />
+        <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore3" Version="5.0.0" />
+        <PackageReference Include="MediatR" Version="11.1.0" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+        <PackageReference Include="FluentValidation" Version="11.4.0" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
+        <PackageReference Include="AutoMapper" Version="12.0.0" />
+        <PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="3.0.1" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+        <PackageReference Include="OneOf" Version="3.0.223" />
+        <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+    </ItemGroup>
+</Project>
