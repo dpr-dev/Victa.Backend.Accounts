@@ -5,31 +5,34 @@ services:
     image: mongo:5.0-focal
     container_name: accounts-database
     environment:
-      MONGO_INITDB_ROOT_USERNAME: victa-fitness
-      MONGO_INITDB_ROOT_PASSWORD: victa-fitness
-    command: mongod --port 15425
+      MONGO_INITDB_ROOT_USERNAME: dbroot
+      MONGO_INITDB_ROOT_PASSWORD: dbroot
+    command: mongod --port 16100
     ports:
-      - "15425:15425"
+      - "16100:16100"
     volumes:
       - accounts-database:/data/db 
 
   service:
     container_name: accounts-service
-    depends_on:
-      - mongo
     build:
       context: .
-      dockerfile: Victa.Backend/Dockerfile
+      dockerfile: Victa.Backend.Accounts/Dockerfile
+      args: 
+        BUILD_CONFIGURATION: Debug
+    depends_on: [mongo]
     environment:
       # db
-      DB_NAME: DbMain
-      DB_CONN: mongodb://victa-fitness:victa-fitness@mongo:15425 
+      DB_NAME: Accounts
+      DB_CONN: mongodb://dbroot:dbroot@mongo:16100
+        
+      ASPNETCORE_ENVIRONMENT: Development
 
       # GCP
       GCP_PROJECT_ID: victa-dev-366313
-      GOOGLE_CLOUD_PROJECT: victa-dev-366313 
+      GOOGLE_CLOUD_PROJECT: victa-dev-366313
     ports:
-      - "15450:80"
+      - "16000:80"
 
 volumes:  
   accounts-database:

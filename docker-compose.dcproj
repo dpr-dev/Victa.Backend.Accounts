@@ -6,7 +6,7 @@
     <ProjectGuid>52B928CE-2EBD-4085-8850-589A7D089659</ProjectGuid>
     <DockerLaunchAction>None</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerComposeProjectName>Victa.Backend.Accounts</DockerComposeProjectName>
+    <DockerComposeProjectName>victa-backend-accounts</DockerComposeProjectName>
   </PropertyGroup>
   
   <ItemGroup>
