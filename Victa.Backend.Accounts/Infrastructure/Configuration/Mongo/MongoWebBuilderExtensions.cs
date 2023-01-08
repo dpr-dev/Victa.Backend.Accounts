@@ -1,4 +1,6 @@
-﻿using MongoDB.Bson.Serialization;
+﻿using Microsoft.AspNetCore.Identity;
+
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
@@ -18,17 +20,22 @@ public static class MongoWebBuilderExtensions
         _ = builder.Services.AddSingleton<IMongoClient>(provider => new MongoClient(Environment.GetEnvironmentVariable("DB_CONN")));
 
 
-        RegisterCollection<AccountsUser>(builder.Services, "Users", cfg =>
+        RegisterCollection<IdentityUser<string>>(builder.Services, "Users", cfg =>
         {
-            _ = cfg.MapIdProperty(x => x.Id);
             cfg.AutoMap();
+            cfg.SetIsRootClass(true);
+            _ = cfg.MapIdProperty(x => x.Id);
         });
 
-        RegisterCollection<AccountsRole>(builder.Services, "Roles", cfg =>
+        RegisterCollection<IdentityRole<string>>(builder.Services, "Roles", cfg =>
         {
-            _ = cfg.MapIdProperty(x => x.Id);
             cfg.AutoMap();
+            cfg.SetIsRootClass(true);
+            _ = cfg.MapIdProperty(x => x.Id);
         });
+
+        RegisterCollection<AccountsUser>(builder.Services, "Users", cfg => cfg.AutoMap());
+        RegisterCollection<AccountsRole>(builder.Services, "Roles", cfg => cfg.AutoMap());
 
         return builder;
     }
