@@ -9,7 +9,8 @@ ARG BUILD_CONFIGURATION=Debug
 EXPOSE 80
 
 WORKDIR /src  
-COPY ["Victa.Backend.Accounts/Victa.Backend.Accounts.csproj", "Victa.Backend.Accounts/"]  
+COPY ["Victa.Backend.Accounts/Victa.Backend.Accounts.csproj", "Victa.Backend.Accounts/"]
+COPY ["Victa.Backend.Accounts.Contracts/Victa.Backend.Accounts.Contracts.csproj", "Victa.Backend.Accounts.Contracts/"]
 
 RUN dotnet restore Victa.Backend.Accounts/Victa.Backend.Accounts.csproj
 

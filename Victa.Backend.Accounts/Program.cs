@@ -1,9 +1,9 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Diagnostics.AspNetCore3;
 
-using IdentityServer4.Models;
-
-using MongoDB.Driver;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 using Victa.Backend.Accounts.Infrastructure.Configuration.AutoMapper;
 using Victa.Backend.Accounts.Infrastructure.Configuration.Cors;
@@ -20,7 +20,8 @@ WebApplicationBuilder builder =
     WebApplication.CreateBuilder(args);
 
 builder.Services.AddMemoryCache();
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 builder.Services.AddHttpLogging(cfg =>
 {
     _ = cfg.RequestHeaders.Add("x-forwarded-for");
@@ -28,30 +29,39 @@ builder.Services.AddHttpLogging(cfg =>
     _ = cfg.RequestHeaders.Add("X-Cloud-Trace-Context");
 });
 
+builder.ConfigureMongo();
 builder.ConfigureIdentity();
 builder.ConfigureIdentityServer();
 builder.ConfigureUrlRewriter();
 builder.ConfigureCors();
 builder.ConfigureJsonOptions();
-builder.ConfigureMongo();
 builder.ConfigureAutoMapper();
 builder.ConfigureFluentValidation();
 builder.ConfigureMediatR();
 builder.ConfigureDataProtection();
 
-builder.Services.AddSingleton(
-    new Lazy<GoogleCredential>(GoogleCredential.GetApplicationDefault));
+builder.Services.AddSingleton(new Lazy<GoogleCredential>(GoogleCredential.GetApplicationDefault));
+builder.Services.AddAuthentication();
 
 if (builder.Environment.IsProduction())
 {
     _ = builder.Services.AddGoogleDiagnosticsForAspNetCore();
 }
-
-// mongodb 
-
-builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Client>("Clients"));
-builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Resource>("Resources"));
-builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<PersistedGrant>("PersistedGrants"));
+else
+{
+    _ = builder.Services
+        .AddOpenTelemetryTracing(b => b.AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .SetResourceBuilder(ResourceBuilder
+                .CreateDefault()
+                .AddService("Victa.Accounts"))
+            .AddJaegerExporter(opts =>
+            {
+                opts.AgentHost = builder.Configuration["JAEGER_AGENT_HOST"];
+                opts.AgentPort = Convert.ToInt32(builder.Configuration["JAEGER_AGENT_PORT"]);
+                opts.ExportProcessorType = ExportProcessorType.Batch;
+            }));
+}
 
 
 WebApplication webapp = builder.Build();
@@ -64,5 +74,6 @@ webapp.UseStaticFiles();
 webapp.UseAuthorization();
 webapp.UseIdentityServer();
 webapp.MapControllers();
+webapp.MapRazorPages();
 
 await webapp.RunAsync();

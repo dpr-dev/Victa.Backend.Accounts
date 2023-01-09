@@ -2,5 +2,5 @@
 
 public enum Stage
 {
-    Dev, Prod, 
+    Dev, Prod,
 }

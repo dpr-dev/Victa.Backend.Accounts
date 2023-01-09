@@ -4,6 +4,7 @@ using IdentityServer4.Models;
 using Microsoft.AspNetCore.Identity;
 
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 
 using Victa.Backend.Accounts.Domain.Models.UserAggregate;
 using Victa.Backend.Accounts.Infrastructure.Configuration.Identity.Adapters;
@@ -27,7 +28,8 @@ public static class IdentityServerWebBuilderExtensions
             .AddDeviceFlowStore<DeviceFlowStore>()
             .AddProfileService<ProfileService>()
             .AddResourceOwnerValidator<ResourceOwnerValidator>()
-            .AddExtensionGrantValidator<ExtensionGrantValidator>();
+            .AddExtensionGrantValidator<ExtensionGrantValidator>()
+            .AddDeveloperSigningCredential();
 
         _ = builder.Services.AddScoped<UserStore>();
         _ = builder.Services.AddScoped<IGrantHandler, GoogleGrantHandler>();
@@ -44,8 +46,8 @@ public static class IdentityServerWebBuilderExtensions
         _ = BsonClassMap.RegisterClassMap<Resource>(cfg =>
         {
             cfg.AutoMap();
-            _ = cfg.MapIdField(x => x.Name);
             cfg.SetIsRootClass(true);
+            _ = cfg.MapIdProperty(x => x.Name);
         });
 
         _ = BsonClassMap.RegisterClassMap<ApiScope>();
@@ -56,8 +58,12 @@ public static class IdentityServerWebBuilderExtensions
         _ = BsonClassMap.RegisterClassMap<IdentityResources.Address>();
         _ = BsonClassMap.RegisterClassMap<IdentityResources.Profile>();
         _ = BsonClassMap.RegisterClassMap<IdentityResources.Phone>();
-        _ = BsonClassMap.RegisterClassMap<Client>(cfg => cfg.MapIdField(x => x.ClientId).ClassMap.AutoMap());
-        _ = BsonClassMap.RegisterClassMap<PersistedGrant>(cfg => cfg.MapIdField(x => x.Key).ClassMap.AutoMap());
+        _ = BsonClassMap.RegisterClassMap<Client>(cfg => cfg.MapIdProperty(x => x.ClientId).ClassMap.AutoMap());
+        _ = BsonClassMap.RegisterClassMap<PersistedGrant>(cfg => cfg.MapIdProperty(x => x.Key).ClassMap.AutoMap());
+
+        _ = builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Client>("Clients"));
+        _ = builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Resource>("Resources"));
+        _ = builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<PersistedGrant>("PersistedGrants"));
 
         return builder;
     }

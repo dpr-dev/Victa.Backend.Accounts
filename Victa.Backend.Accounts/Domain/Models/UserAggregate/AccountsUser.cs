@@ -8,23 +8,45 @@ public class AccountsUser : IdentityUser<string>
     {
     }
 
+    public AccountsUser(
+        string email,
+        string userName,
+        List<string>? roles = null)
+    {
+        Id = Guid
+            .NewGuid()
+            .ToShortString();
+
+        Email = email;
+        UserName = userName;
+        FirebaseTokens = new List<string>();
+        Roles = roles
+            ?? new List<string>();
+
+        Claims = new List<IdentityUserClaim<string>>();
+        Logins = new List<IdentityUserLogin<string>>();
+        Tokens = new List<IdentityUserToken<string>>();
+    }
+
     public string? Name { get; set; }
     public string? GivenName { get; set; }
     public string? Picture { get; set; }
     public string? ZoneInfo { get; set; }
     public string? Locale { get; set; }
     public List<string> Roles { get; set; }
+    public List<string> FirebaseTokens { get; set; }
     public List<IdentityUserClaim<string>> Claims { get; set; }
     public List<IdentityUserLogin<string>> Logins { get; set; }
     public List<IdentityUserToken<string>> Tokens { get; set; }
+    public Gender? Gender { get; set; }
+    public DateTime? BirthDate { get; set; }
+    public string? Address { get; set; }
+    public double? Height { get; set; }
+    public string? InvitedBy { get; set; }
+    public string? PromotedBy { get; set; }
+    public int? Age { get; set; }
+    public int? Weight { get; set; }
+
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
-    public string[] FirebaseTokens { get; set; }
-    public CustomerDetails CustomerDetails { get; set; }
-    public UserState UserState { get; set; }
-
-    public static AccountsUser Customer()
-    {
-        throw new InvalidOperationException();
-    }
 }

@@ -7,6 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
  
 COPY ["Victa.Backend.Accounts/Victa.Backend.Accounts.csproj", "Victa.Backend.Accounts/"]
+COPY ["Victa.Backend.Accounts.Contracts/Victa.Backend.Accounts.Contracts.csproj", "Victa.Backend.Accounts.Contracts/"]
 
 RUN dotnet restore "Victa.Backend.Accounts/Victa.Backend.Accounts.csproj"
 

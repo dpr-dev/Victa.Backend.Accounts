@@ -27,4 +27,16 @@
         <PackageReference Include="OneOf" Version="3.0.223" />
         <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
     </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="OpenTelemetry" Version="1.4.0-rc.1" />
+        <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.4.0-rc.1" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.4.0-rc.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.10" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Victa.Backend.Accounts.Contracts\Victa.Backend.Accounts.Contracts.csproj" />
+    </ItemGroup>
 </Project>
