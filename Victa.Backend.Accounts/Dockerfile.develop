@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:7.0
+
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV ASPNETCORE_URLS=http://+:80
+
+ARG BUILD_CONFIGURATION=Debug
+
+EXPOSE 80
+
+WORKDIR /src  
+COPY ["Victa.Backend.Accounts/Victa.Backend.Accounts.csproj", "Victa.Backend.Accounts/"]  
+
+RUN dotnet restore Victa.Backend.Accounts/Victa.Backend.Accounts.csproj
+
+COPY . .
+
+WORKDIR /src/Victa.Backend.Accounts
+RUN dotnet build -c $BUILD_CONFIGURATION
+
+CMD ["dotnet", "run", "--no-build", "--no-launch-profile", "-c", "$BUILD_CONFIGURATION", "--"]

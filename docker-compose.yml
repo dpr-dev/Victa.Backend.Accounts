@@ -17,7 +17,7 @@ services:
     container_name: accounts-service
     build:
       context: .
-      dockerfile: Victa.Backend.Accounts/Dockerfile
+      dockerfile: Victa.Backend.Accounts/Dockerfile.develop
       args: 
         BUILD_CONFIGURATION: Debug
     depends_on: [mongo]
