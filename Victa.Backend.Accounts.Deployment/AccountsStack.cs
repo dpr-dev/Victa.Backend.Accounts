@@ -28,7 +28,7 @@ public class AccountsStack : Stack
             Build = new Docker.DockerBuild
             {
                 Context = cfg.BuildDirectory,
-                Dockerfile = Path.Combine(cfg.BuildDirectory, "Victa.Backend.Accoutns", "Dockerfile")
+                Dockerfile = Path.Combine(cfg.BuildDirectory, "Dockerfile")
             }
         });
 
