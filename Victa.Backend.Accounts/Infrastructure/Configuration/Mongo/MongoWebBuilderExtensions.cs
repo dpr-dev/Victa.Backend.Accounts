@@ -16,7 +16,7 @@ public static class MongoWebBuilderExtensions
         ConventionRegistry.Register("camelCase",
             new ConventionPack { new CamelCaseElementNameConvention() }, t => true);
 
-        _ = builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoClient>().GetDatabase("DB_NAME"));
+        _ = builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoClient>().GetDatabase(Environment.GetEnvironmentVariable("DB_NAME")));
         _ = builder.Services.AddSingleton<IMongoClient>(provider => new MongoClient(Environment.GetEnvironmentVariable("DB_CONN")));
 
 

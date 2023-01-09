@@ -8,24 +8,25 @@ using Victa.Backend.Accounts.Infrastructure.Configuration.DataProtection.Adapter
 
 namespace Victa.Backend.Accounts.Infrastructure.Configuration.DataProtection;
 
-public static class MongoDbDataProtectionBuilderExtensions
+public static class DataProtectionWebBuilderExtensions
 {
-    public static IDataProtectionBuilder PersistKeysToMongoDb(this IDataProtectionBuilder builder)
+    public static WebApplicationBuilder ConfigureDataProtection(this WebApplicationBuilder builder)
     {
-        _ = BsonClassMap.RegisterClassMap<XmlEntry>(cfg =>
-        {
-            cfg.MapIdField(x => x.Key).ClassMap.AutoMap();
-        });
+        _ = BsonClassMap
+            .RegisterClassMap<XmlEntry>(cfg => cfg.AutoMap())
+            .MapIdProperty(x => x.Key);
 
         _ = builder.Services
             .AddSingleton<MongoDbXmlRepository>()
             .AddOptions<KeyManagementOptions>()
                 .Configure<MongoDbXmlRepository>((options, repository) => options.XmlRepository = repository);
 
-
         _ = builder.Services
             .AddSingleton(provider => provider
                 .GetRequiredService<IMongoDatabase>().GetCollection<XmlEntry>("XmlEntries"));
+
+        _ = builder.Services.AddDataProtection()
+            .SetApplicationName(builder.Configuration.GetValue("APP_NAME", "Victa")!);
 
         return builder;
     }

@@ -7,6 +7,7 @@ using MongoDB.Driver;
 
 using Victa.Backend.Accounts.Infrastructure.Configuration.AutoMapper;
 using Victa.Backend.Accounts.Infrastructure.Configuration.Cors;
+using Victa.Backend.Accounts.Infrastructure.Configuration.DataProtection;
 using Victa.Backend.Accounts.Infrastructure.Configuration.FluentValidation;
 using Victa.Backend.Accounts.Infrastructure.Configuration.Identity;
 using Victa.Backend.Accounts.Infrastructure.Configuration.IdentityServer;
@@ -36,6 +37,7 @@ builder.ConfigureMongo();
 builder.ConfigureAutoMapper();
 builder.ConfigureFluentValidation();
 builder.ConfigureMediatR();
+builder.ConfigureDataProtection();
 
 builder.Services.AddSingleton(
     new Lazy<GoogleCredential>(GoogleCredential.GetApplicationDefault));
