@@ -10,6 +10,9 @@ public class AccountsUser : IdentityUser<string>
 
     public string? Name { get; set; }
     public string? GivenName { get; set; }
+    public string? Picture { get; set; }
+    public string? ZoneInfo { get; set; }
+    public string? Locale { get; set; }
     public List<string> Roles { get; set; }
     public List<IdentityUserClaim<string>> Claims { get; set; }
     public List<IdentityUserLogin<string>> Logins { get; set; }
