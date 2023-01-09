@@ -1,4 +1,7 @@
 config:
+  app:DB_CONN:
+    secure: AAABAEzvQKo9CHM3ooAX09C3mkD/nUVuIdc993Hp9opIqO9uCIXR9a46CJDkvtELb7ikEzO4P+Yb55awK9IA/zF33MLr2uNeh1DhXN+pHd0B+UKUpsVMlumkv7YZYYzDFX3CMtxohe4OVYn27NXx3bWD1xnDDZ0=
+  app:DB_NAME: Accounts
   container:containerConcurrency: "10"
   container:cpu: 2000m
   container:domain: dev.accounts.victa.ai
@@ -6,7 +9,7 @@ config:
   container:maxScale: "100"
   container:memory: 2Gi
   container:minScale: "0"
-  container:port: "80" 
+  container:port: "80"
   container:startupCpuBust: "true"
   deployment:resourcePrefix: development
   gcp:project: victa-dev-366313

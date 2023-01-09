@@ -1,4 +1,7 @@
-config:  
+config:
+  app:DB_CONN:
+    secure: AAABABUXi4GZPSrWv8MxPoeHu66rr8tftszI9Xry9dki+htg1OqfF/wuORaHpuUmuAXl/5Bn6AQjf88JyBfey2Y0W/qPn5tv+0ZRUga64WaiiA/3rweqM8vnIZBPIOMMeS/bmwevtNEf75KFnw==
+  app:DB_NAME: Accounts
   container:containerConcurrency: "20"
   container:cpu: 2000m
   container:domain: accounts.victa.ai
