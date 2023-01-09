@@ -8,7 +8,7 @@ config:
   container:executionEnvironment: gen2
   container:maxScale: "100"
   container:memory: 2Gi
-  container:minScale: "1"
+  container:minScale: "0"
   container:port: "80"
   container:startupCpuBust: "true"
   deployment:resourcePrefix: production

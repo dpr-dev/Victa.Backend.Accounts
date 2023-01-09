@@ -81,6 +81,12 @@ public class AccountsStack : Stack
             }
         });
 
+
+        Output<string> serviceUrl = service.Statuses.Apply(x =>
+        {
+            return x.FirstOrDefault()?.Url?.TrimEnd('/') ?? throw new InvalidOperationException("Bad service url");
+        });
+
         CloudRun.IamMember cloudRunBackendServiceIamMember = new("PublicAccess", args: new()
         {
             Service = service.Name,
@@ -108,35 +114,6 @@ public class AccountsStack : Stack
                 updated = CreateTopic($"accounts.user.updated.{cfg.Deployment.ResourcePrefix}"),
             },
         };
-
-        Output<string> backendServiceUrl = service.Statuses.Apply(
-            x => x.FirstOrDefault()?.Url?.TrimEnd('/') ?? throw new InvalidOperationException("Bad service url"));
-    }
-
-
-
-    private static Gcp.SecretManager.Secret CreateDefaultSecret(string name, Input<string> data)
-    {
-
-        var secret = new Gcp.SecretManager.Secret(name, new()
-        {
-            SecretId = name,
-            Replication = new Gcp.SecretManager.Inputs.SecretReplicationArgs { Automatic = true, },
-            Labels =
-            {
-                { "type", "service" },
-                { "service", "backend" },
-            }
-        });
-
-        _ = new Gcp.SecretManager.SecretVersion($"{name}-value", new()
-        {
-            Enabled = true,
-            Secret = secret.Id,
-            SecretData = data
-        });
-
-        return secret;
     }
 
     private static CloudRun.Inputs.ServiceTemplateSpecContainerEnvArgs CreateEnv(string envName, string value)
@@ -162,7 +139,7 @@ public class AccountsStack : Stack
 
     private static PubSub.Topic CreateTopic(string name)
     {
-        return new PubSub.Topic(name, args: new() { Name = name }, options: new());
+        return new PubSub.Topic(name, args: new() { Name = name, }, options: new());
     }
 
     private static PubSub.Subscription CreateSubscription(string name, Output<string> topicName, Output<string> pushEndpoint)
