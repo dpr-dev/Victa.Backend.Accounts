@@ -72,7 +72,9 @@ public class AccountsStack : Stack
                         },
                         Envs =
                         {
-                            CreateEnvAsSecretReference("DB_URL", secrets.DbConn.SecretId),
+                            // TODO: set as ENV: IS4_ISSUER_URI, APP_NAME
+                            CreateEnv("DB_NAME", cfg.App.DbName),
+                            CreateEnvAsSecretReference("DB_CONN", secrets.DbConn.SecretId),
                         }
                     }
                 }
@@ -135,6 +137,11 @@ public class AccountsStack : Stack
         });
 
         return secret;
+    }
+
+    private static CloudRun.Inputs.ServiceTemplateSpecContainerEnvArgs CreateEnv(string envName, string value)
+    {
+        return new() { Name = envName, Value = value };
     }
 
     private static CloudRun.Inputs.ServiceTemplateSpecContainerEnvArgs CreateEnvAsSecretReference(string envName, Output<string> secretName)
