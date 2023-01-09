@@ -9,9 +9,11 @@ using Gcp = Pulumi.Gcp;
 using PubSub = Pulumi.Gcp.PubSub;
 using Storage = Pulumi.Gcp.Storage;
 
-public class VictaStack : Stack
+namespace Victa.Backend.Accounts.Deployment;
+
+public class AccountsStack : Stack
 {
-    public VictaStack(DeploymentCfg cfg)
+    public AccountsStack(DeploymentCfg cfg)
     {
         var backendRegistry = new Registry("BackendRegistry");
         var backendStorageBucket = new Storage.Bucket("ServiceStorage.Backend", new()

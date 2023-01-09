@@ -4,6 +4,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Victa.Backend.Accounts.Deployment;
 
 public class DeploymentRunnerHostedService : IHostedService
 {
@@ -21,7 +22,7 @@ public class DeploymentRunnerHostedService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         using IServiceScope scope = _serviceProvider.CreateScope();
-        _ = await Pulumi.Deployment.RunAsync<VictaStack>(scope.ServiceProvider);
+        _ = await Pulumi.Deployment.RunAsync<AccountsStack>(scope.ServiceProvider);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
