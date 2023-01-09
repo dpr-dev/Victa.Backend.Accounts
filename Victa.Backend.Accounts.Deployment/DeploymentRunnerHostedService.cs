@@ -1,9 +1,7 @@
-﻿using System.Net.Sockets;
-using System;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using Victa.Backend.Accounts.Deployment;
 
 public class DeploymentRunnerHostedService : IHostedService

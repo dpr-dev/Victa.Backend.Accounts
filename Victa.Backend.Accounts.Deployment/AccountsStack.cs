@@ -7,7 +7,6 @@ using CloudRun = Pulumi.Gcp.CloudRun;
 using Docker = Pulumi.Docker;
 using Gcp = Pulumi.Gcp;
 using PubSub = Pulumi.Gcp.PubSub;
-using Storage = Pulumi.Gcp.Storage;
 
 namespace Victa.Backend.Accounts.Deployment;
 
@@ -15,22 +14,15 @@ public class AccountsStack : Stack
 {
     public AccountsStack(DeploymentCfg cfg)
     {
-        var backendRegistry = new Registry("BackendRegistry");
-        var backendStorageBucket = new Storage.Bucket("ServiceStorage.Backend", new()
-        {
-            ForceDestroy = true,
-            Location = Gcp.Location.UsCentral1,
-            Name = $"servicestorage-backend-{cfg.Deployment.ResourcePrefix}",
-            PublicAccessPrevention = Storage.PublicAccessPrevention.Enforced,
-            UniformBucketLevelAccess = true
-        });
-
-        Output<string> registryUrl = backendRegistry.Id.Apply(async _ =>
+        Registry registry = new("BackendRegistry");
+        Output<string> registryUrl = registry.Id.Apply(async _ =>
         {
             return (await GetRegistryRepository.InvokeAsync()).RepositoryUrl;
         });
 
-        var backendImage = new Docker.Image("DockerImage", args: new()
+        StackSecrets secrets = new(cfg);
+
+        Docker.Image dockerImage = new("DockerImage", args: new()
         {
             ImageName = Output.Format($"{registryUrl}/accounts-backend:{cfg.GithubRefName}"),
             Build = new Docker.DockerBuild
@@ -40,13 +32,9 @@ public class AccountsStack : Stack
             }
         });
 
-        Gcp.SecretManager.Secret secretDbUrl =
-            CreateDefaultSecret($"ACCOUNTS-SERVICE-BACKEND-{cfg.Deployment.ResourcePrefix.ToUpper()}-DB_URL",
-                cfg.App.DbConn);
-
-        var cloudRunBackendService = new CloudRun.Service($"BackendCloudRunService-{cfg.Deployment.ResourcePrefix}", new()
+        CloudRun.Service service = new($"CloudRunService-{cfg.Deployment.ResourcePrefix}", new()
         {
-            Name = $"accounts-backend-{cfg.Deployment.ResourcePrefix}",
+            Name = $"accounts-{cfg.Deployment.ResourcePrefix}",
             Location = Gcp.Location.UsCentral1,
             AutogenerateRevisionName = true,
             Template = new CloudRun.Inputs.ServiceTemplateArgs
@@ -66,7 +54,7 @@ public class AccountsStack : Stack
                     ContainerConcurrency = cfg.Container.Concurrency,
                     Containers = new CloudRun.Inputs.ServiceTemplateSpecContainerArgs
                     {
-                        Image = backendImage.ImageName,
+                        Image = dockerImage.ImageName,
                         Ports =
                         {
                             new CloudRun.Inputs.ServiceTemplateSpecContainerPortArgs
@@ -84,29 +72,29 @@ public class AccountsStack : Stack
                         },
                         Envs =
                         {
-                            CreateEnvAsSecretReference("DB_URL", secretDbUrl.SecretId),
+                            CreateEnvAsSecretReference("DB_URL", secrets.DbConn.SecretId),
                         }
                     }
                 }
             }
         });
 
-        var cloudRunBackendServiceIamMember = new CloudRun.IamMember("PublicAccess", args: new()
+        CloudRun.IamMember cloudRunBackendServiceIamMember = new("PublicAccess", args: new()
         {
-            Service = cloudRunBackendService.Name,
+            Service = service.Name,
             Location = Gcp.Location.UsCentral1,
             Role = "roles/run.invoker",
             Member = "allUsers"
         });
 
-        var backendServiceTestDomainMapping = new CloudRun.DomainMapping("BackendCloudRunServiceDomainMapping", new()
+        CloudRun.DomainMapping backendServiceTestDomainMapping = new("BackendCloudRunServiceDomainMapping", new()
         {
             Name = cfg.Container.Domain,
             Location = Gcp.Location.UsCentral1,
-            Spec = new CloudRun.Inputs.DomainMappingSpecArgs { RouteName = cloudRunBackendService.Name, },
+            Spec = new CloudRun.Inputs.DomainMappingSpecArgs { RouteName = service.Name, },
             Metadata = new CloudRun.Inputs.DomainMappingMetadataArgs
             {
-                Namespace = cloudRunBackendService.Metadata.Apply(x => x.Namespace),
+                Namespace = service.Metadata.Apply(x => x.Namespace),
             },
         });
 
@@ -119,9 +107,8 @@ public class AccountsStack : Stack
             },
         };
 
-        Output<string> backendServiceUrl = cloudRunBackendService.Statuses.Apply(
+        Output<string> backendServiceUrl = service.Statuses.Apply(
             x => x.FirstOrDefault()?.Url?.TrimEnd('/') ?? throw new InvalidOperationException("Bad service url"));
-
     }
 
 
