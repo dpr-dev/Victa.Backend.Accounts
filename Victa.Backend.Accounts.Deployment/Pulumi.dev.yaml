@@ -1,0 +1,12 @@
+config:
+  container:containerConcurrency: "10"
+  container:cpu: 2000m
+  container:domain: dev.accounts.victa.ai
+  container:executionEnvironment: gen2
+  container:maxScale: "100"
+  container:memory: 2Gi
+  container:minScale: "0"
+  container:port: "80" 
+  container:startupCpuBust: "true"
+  deployment:resourcePrefix: development
+  gcp:project: victa-dev-366313
