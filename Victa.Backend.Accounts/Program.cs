@@ -53,7 +53,7 @@ builder.Services.AddAuthentication()
 
 if (builder.Environment.IsProduction())
 {
-    _ = builder.Services.AddGoogleDiagnosticsForAspNetCore();
+    //_ = builder.Services.AddGoogleDiagnosticsForAspNetCore();
 }
 else
 {
