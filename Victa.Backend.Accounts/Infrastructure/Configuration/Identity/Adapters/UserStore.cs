@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using Microsoft.AspNetCore.Identity;
 
@@ -64,9 +63,6 @@ public class UserStore :
         _userCollection = userCollection;
         _roleCollection = roleCollection;
         ErrorDescriber = describer ?? new IdentityErrorDescriber();
-
-        EnsureIndex(x => x.NormalizedEmail);
-        EnsureIndex(x => x.NormalizedUserName);
     }
 
     /// <summary>
@@ -1417,12 +1413,6 @@ public class UserStore :
     {
         AccountsUser dbUser = await ByIdAsync(user.Id, cancellationToken).ConfigureAwait(true);
         return dbUser?.Tokens?.FirstOrDefault(x => x.LoginProvider == loginProvider && x.Name == name);
-    }
-
-    private void EnsureIndex(Expression<Func<AccountsUser, object>> field)
-    {
-        var model = new CreateIndexModel<AccountsUser>(Builders<AccountsUser>.IndexKeys.Ascending(field));
-        _ = _userCollection.Indexes.CreateOne(model);
     }
 
     private Task<AccountsUser> ByIdAsync(string id, CancellationToken cancellationToken = default)
