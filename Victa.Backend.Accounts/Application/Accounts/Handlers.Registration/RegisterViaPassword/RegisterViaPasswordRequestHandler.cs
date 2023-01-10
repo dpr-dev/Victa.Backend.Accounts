@@ -63,6 +63,7 @@ public class RegisterViaPasswordRequestHandler
         IdentityResult createResult = await _userManager.CreateAsync(user, request.Source.Password);
         if (!createResult.Succeeded)
         {
+            return RegisterViaPasswordResponse.Unhandled;
         }
 
         return RegisterViaPasswordResponse.Success(_mapper.Map<OAccountsUser>(user));
