@@ -3,10 +3,6 @@ using Google.Cloud.Diagnostics.AspNetCore3;
 
 using Microsoft.IdentityModel.Logging;
 
-using OpenTelemetry;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-
 using Victa.Backend.Accounts.Infrastructure.Configuration.AutoMapper;
 using Victa.Backend.Accounts.Infrastructure.Configuration.Cors;
 using Victa.Backend.Accounts.Infrastructure.Configuration.DataProtection;
@@ -54,21 +50,6 @@ builder.Services.AddAuthentication()
 if (builder.Environment.IsProduction())
 {
     _ = builder.Services.AddGoogleDiagnosticsForAspNetCore();
-}
-else
-{
-    _ = builder.Services
-        .AddOpenTelemetryTracing(b => b.AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation()
-            .SetResourceBuilder(ResourceBuilder
-                .CreateDefault()
-                .AddService("Victa.Accounts"))
-            .AddJaegerExporter(opts =>
-            {
-                opts.AgentHost = builder.Configuration["JAEGER_AGENT_HOST"];
-                opts.AgentPort = Convert.ToInt32(builder.Configuration["JAEGER_AGENT_PORT"]);
-                opts.ExportProcessorType = ExportProcessorType.Batch;
-            }));
 }
 
 WebApplication webapp = builder.Build();
