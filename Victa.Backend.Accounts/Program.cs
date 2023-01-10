@@ -1,6 +1,8 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Diagnostics.AspNetCore3;
 
+using Microsoft.IdentityModel.Logging;
+
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -18,6 +20,11 @@ using Victa.Backend.Accounts.Infrastructure.Configuration.UrlRewriter;
 
 WebApplicationBuilder builder =
     WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+{
+    IdentityModelEventSource.ShowPII = true;
+}
 
 builder.Services.AddMemoryCache();
 builder.Services.AddControllersWithViews();
@@ -41,7 +48,8 @@ builder.ConfigureMediatR();
 builder.ConfigureDataProtection();
 
 builder.Services.AddSingleton(new Lazy<GoogleCredential>(GoogleCredential.GetApplicationDefault));
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication()
+    .AddLocalApi();
 
 if (builder.Environment.IsProduction())
 {
@@ -62,7 +70,6 @@ else
                 opts.ExportProcessorType = ExportProcessorType.Batch;
             }));
 }
-
 
 WebApplication webapp = builder.Build();
 
