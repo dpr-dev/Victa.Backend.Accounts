@@ -72,8 +72,9 @@ public class AccountsStack : Stack
                         },
                         Envs =
                         {
-                            // TODO: set as ENV: IS4_ISSUER_URI, APP_NAME
+                            // TODO: set as ENV: APP_NAME
                             CreateEnv("DB_NAME", cfg.App.DbName),
+                            CreateEnv("IS4_ISSUER_URI", cfg.Container.Domain),
                             CreateEnvAsSecretReference("DB_CONN", secrets.DbConn.SecretId),
                         }
                     }
