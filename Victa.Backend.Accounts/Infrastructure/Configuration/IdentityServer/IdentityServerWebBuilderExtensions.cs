@@ -58,8 +58,16 @@ public static class IdentityServerWebBuilderExtensions
         _ = BsonClassMap.RegisterClassMap<IdentityResources.Address>();
         _ = BsonClassMap.RegisterClassMap<IdentityResources.Profile>();
         _ = BsonClassMap.RegisterClassMap<IdentityResources.Phone>();
-        _ = BsonClassMap.RegisterClassMap<Client>(cfg => cfg.MapIdProperty(x => x.ClientId).ClassMap.AutoMap());
-        _ = BsonClassMap.RegisterClassMap<PersistedGrant>(cfg => cfg.MapIdProperty(x => x.Key).ClassMap.AutoMap());
+        _ = BsonClassMap.RegisterClassMap<Client>(cfg =>
+        {
+            cfg.AutoMap();
+            _ = cfg.MapIdProperty(x => x.ClientId);
+        });
+        _ = BsonClassMap.RegisterClassMap<PersistedGrant>(cfg =>
+        {
+            cfg.AutoMap();
+            _ = cfg.MapIdProperty(x => x.Key);
+        });
 
         _ = builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Client>("Clients"));
         _ = builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoDatabase>().GetCollection<Resource>("Resources"));
