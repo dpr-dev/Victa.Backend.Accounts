@@ -51,6 +51,7 @@ public class RegisterViaPasswordRequestHandler
             Age = request.Source.Age,
             InvitedBy = request.Source.InvitedBy,
             PromotedBy = request.Source.PromotedBy,
+            AvatarId = request.Source.AvatarId,
             Gender = request.Source.Gender switch
             {
                 SGender.Male => Gender.Male,

@@ -26,6 +26,9 @@ public class AccountsUser : IdentityUser<string>
         Claims = new List<IdentityUserClaim<string>>();
         Logins = new List<IdentityUserLogin<string>>();
         Tokens = new List<IdentityUserToken<string>>();
+        CompletionSteps = new CompletionSteps
+        {
+        };
     }
 
     public string? Name { get; set; }
@@ -46,6 +49,13 @@ public class AccountsUser : IdentityUser<string>
     public string? PromotedBy { get; set; }
     public int? Age { get; set; }
     public int? Weight { get; set; }
+
+    /// <summary>
+    /// For backward capability
+    /// </summary>
+    [Obsolete]
+    public string? AvatarId { get; set; }
+    public CompletionSteps CompletionSteps { get; set; }
 
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }

@@ -4,7 +4,7 @@ using AutoMapper.Extensions.EnumMapping;
 using Victa.Backend.Accounts.Contracts;
 using Victa.Backend.Accounts.Domain.Models.UserAggregate;
 
-namespace Victa.Backend.Accounts.Infrastructure.Mapper.Accounts;
+namespace Victa.Backend.Accounts.Infrastructure.Configuration.AutoMapper.Profiles.Accounts;
 
 public class SProfile : Profile
 {

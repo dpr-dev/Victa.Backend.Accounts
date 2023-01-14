@@ -21,6 +21,7 @@ public class OAccountsUser
     public string? PromotedBy { get; set; }
     public int? Age { get; set; }
     public int? Weight { get; set; }
+    public OCompletionSteps CompletionSteps { get; set; }
 
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }

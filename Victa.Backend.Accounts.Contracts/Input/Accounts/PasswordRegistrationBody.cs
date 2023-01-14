@@ -15,4 +15,9 @@ public class PasswordRegistrationBody
     public SGender Gender { get; set; }
     public string? InvitedBy { get; set; }
     public string? PromotedBy { get; set; }
+
+    /// <summary>
+    /// For backward capability
+    /// </summary>
+    public string? AvatarId { get; set; }
 }
