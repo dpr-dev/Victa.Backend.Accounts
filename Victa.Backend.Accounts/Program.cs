@@ -13,6 +13,7 @@ using Victa.Backend.Accounts.Infrastructure.Configuration.JsonOptions;
 using Victa.Backend.Accounts.Infrastructure.Configuration.MediatR;
 using Victa.Backend.Accounts.Infrastructure.Configuration.Mongo;
 using Victa.Backend.Accounts.Infrastructure.Configuration.UrlRewriter;
+using Victa.Backend.Accounts.Integrations.GooglePubSub;
 
 WebApplicationBuilder builder =
     WebApplication.CreateBuilder(args);
@@ -42,6 +43,8 @@ builder.ConfigureAutoMapper();
 builder.ConfigureFluentValidation();
 builder.ConfigureMediatR();
 builder.ConfigureDataProtection();
+
+builder.AddGoogleCloudPubSub();
 
 builder.Services.AddSingleton(new Lazy<GoogleCredential>(GoogleCredential.GetApplicationDefault));
 builder.Services.AddAuthentication()

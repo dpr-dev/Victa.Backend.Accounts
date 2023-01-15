@@ -75,6 +75,8 @@ public class AccountsStack : Stack
                             // TODO: set as ENV: APP_NAME
                             CreateEnv("DB_NAME", cfg.App.DbName),
                             CreateEnv("IS4_ISSUER_URI", cfg.Container.Domain),
+                            CreateEnv("GCP_PROJECT_ID", cfg.Gcp.Project),
+                            CreateEnv("RESOURCE_PREFIX", cfg.Deployment.ResourcePrefix),
                             CreateEnvAsSecretReference("DB_CONN", secrets.DbConn.SecretId),
                         }
                     }

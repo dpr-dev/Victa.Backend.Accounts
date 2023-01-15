@@ -7,7 +7,12 @@ public static class PubSubServiceCollectionExtensions
     public static WebApplicationBuilder AddGoogleCloudPubSub(this WebApplicationBuilder builder)
     {
         _ = builder.Services.AddSingleton<IServiceBus, PubSubServiceBus>()
-            .AddOptions<PubSubOptions>();
+            .AddOptions<PubSubOptions>()
+                .Configure<IConfiguration>((options, cfg) =>
+                {
+                    options.ProjectId = cfg.GetValue<string>("GCP_PROJECT_ID");
+                    options.ResourcePrefix = cfg.GetValue<string>("RESOURCE_PREFIX");
+                });
 
 
         return builder;
