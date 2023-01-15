@@ -50,8 +50,10 @@ builder.Services.AddSingleton(new Lazy<GoogleCredential>(GoogleCredential.GetApp
 builder.Services.AddAuthentication()
     .AddLocalApi();
 
+
 if (builder.Environment.IsProduction())
 {
+    _ = builder.Logging.ClearProviders();
     _ = builder.Services.AddGoogleDiagnosticsForAspNetCore();
 }
 
