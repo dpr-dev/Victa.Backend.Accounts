@@ -15,16 +15,16 @@ using Victa.Backend.Accounts.Core.AspNetCore.Authorization;
 using Victa.Backend.Accounts.Core.AspNetCore.Mvc;
 using Victa.Backend.Accounts.Domain.Models.UserAggregate;
 
-namespace Victa.Backend.Accounts.Controllers.Accounts;
+namespace Victa.Backend.Accounts.Controllers.Account;
 
 [ApiController]
-[Route("api/v1/accounts")]
-public sealed class AccountsController : ApiController
+[Route("api/v1/account")]
+public sealed class AccountController : ApiController
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<AccountsController> _logger;
+    private readonly ILogger<AccountController> _logger;
 
-    public AccountsController(IMediator mediator, ILogger<AccountsController> logger)
+    public AccountController(IMediator mediator, ILogger<AccountController> logger)
     {
         if (mediator is null)
         {
