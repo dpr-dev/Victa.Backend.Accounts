@@ -3,6 +3,7 @@ using Google.Cloud.Diagnostics.AspNetCore3;
 
 using Microsoft.IdentityModel.Logging;
 
+using Victa.Backend.Accounts.Core.AspNetCore.Authorization;
 using Victa.Backend.Accounts.Infrastructure.Configuration.AutoMapper;
 using Victa.Backend.Accounts.Infrastructure.Configuration.Cors;
 using Victa.Backend.Accounts.Infrastructure.Configuration.DataProtection;
@@ -49,6 +50,8 @@ builder.AddGoogleCloudPubSub();
 builder.Services.AddSingleton(new Lazy<GoogleCredential>(GoogleCredential.GetApplicationDefault));
 builder.Services.AddAuthentication()
     .AddLocalApi();
+
+builder.Services.AddAuthorization(x => x.AddDefaultPolicies());
 
 
 if (builder.Environment.IsProduction())
