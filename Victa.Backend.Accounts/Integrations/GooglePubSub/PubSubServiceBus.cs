@@ -10,6 +10,7 @@ using Grpc.Auth;
 
 using Microsoft.Extensions.Options;
 
+using Victa.Backend.Accounts.Contracts.Events.Accounts;
 using Victa.Backend.Accounts.Core;
 
 using PubsubMessage = Google.Cloud.PubSub.V1.PubsubMessage;
@@ -48,6 +49,8 @@ internal class PubSubServiceBus : IServiceBus
         _credential = credential;
         _eventTypesTopicMappings = new Dictionary<Type, string>
         {
+            { typeof(UserCreated), "accounts.user.created" },
+            { typeof(UserUpdated), "accounts.user.updated" },
         };
     }
 

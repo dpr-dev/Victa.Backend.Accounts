@@ -5,7 +5,9 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 
 using Victa.Backend.Accounts.Contracts;
+using Victa.Backend.Accounts.Contracts.Events.Accounts;
 using Victa.Backend.Accounts.Contracts.Output.Accounts;
+using Victa.Backend.Accounts.Core;
 using Victa.Backend.Accounts.Domain.Models.UserAggregate;
 
 namespace Victa.Backend.Accounts.Application.Accounts.Handlers.Registration.RegisterViaPassword;
@@ -16,11 +18,13 @@ public class RegisterViaPasswordRequestHandler
     private readonly ILogger _logger;
     private readonly IMapper _mapper;
     private readonly UserManager<AccountsUser> _userManager;
+    private readonly IServiceBus _bus;
 
     public RegisterViaPasswordRequestHandler(
         IMapper mapper,
         ILogger<RegisterViaPasswordRequestHandler> logger,
-        UserManager<AccountsUser> userManager)
+        UserManager<AccountsUser> userManager,
+        IServiceBus bus)
     {
         if (mapper is null)
         {
@@ -37,11 +41,18 @@ public class RegisterViaPasswordRequestHandler
             throw new ArgumentNullException(nameof(userManager));
         }
 
+        if (bus is null)
+        {
+            throw new ArgumentNullException(nameof(bus));
+        }
+
         _mapper = mapper;
         _logger = logger;
         _userManager = userManager;
+        _bus = bus;
     }
 
+    // TODO: send event about created account
     public async Task<RegisterViaPasswordResponse> Handle(RegisterViaPasswordRequest request,
         CancellationToken cancellationToken)
     {
@@ -67,6 +78,24 @@ public class RegisterViaPasswordRequestHandler
             return RegisterViaPasswordResponse.Unhandled;
         }
 
-        return RegisterViaPasswordResponse.Success(_mapper.Map<OAccountsUser>(user));
+        OAccountsUser output =
+            _mapper.Map<OAccountsUser>(user);
+
+        await SendEvent(output);
+
+        return RegisterViaPasswordResponse.Success(output);
+    }
+
+    private async Task SendEvent(OAccountsUser output)
+    {
+        try
+        {
+            await _bus.Publish(new UserCreated { AccountsUser = output });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Unable to send event about user creation");
+        }
     }
 }
