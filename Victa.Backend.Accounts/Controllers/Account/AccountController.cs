@@ -83,9 +83,37 @@ public sealed class AccountController : ApiController
     }
 
 
+
+    [HttpPut("password")]
+    [AuthorizeCustomer]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordBody body,
+        [FromServices] UserManager<AccountsUser> userManager)
+    {
+        AccountsUser? user = await userManager.FindByIdAsync(UserId);
+        if (user is null)
+        {
+            return Problem(statusCode: HttpStatusCode.InternalServerError, detail: "unnknown_authenticated_user");
+        }
+
+        string encodedPassword = userManager.PasswordHasher.HashPassword(user, body.Password);
+
+        user.PasswordHash = encodedPassword;
+
+        IdentityResult result = await userManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            return NoContent();
+        }
+
+        return Problem(statusCode: HttpStatusCode.InternalServerError);
+    }
+
+
     #region Registration
     [AllowAnonymous]
-    [HttpPost("registration/password")]
+    [HttpPost("register/password")]
     public async Task<IActionResult> Register([FromBody] PasswordRegistrationBody source)
     {
         RegisterViaPasswordResponse result;
