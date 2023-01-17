@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
 
+using FluentValidation;
+
 using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
@@ -198,4 +200,15 @@ public sealed class AccountController : ApiController
         return NoContent();
     }
     #endregion
+}
+
+
+public class PasswordRegistrationBodyValidator : AbstractValidator<PasswordRegistrationBody>
+{
+    public PasswordRegistrationBodyValidator()
+    { 
+        _ = RuleFor(x => x.Email).NotEmpty();
+        _ = RuleFor(x => x.UserName).NotEmpty();
+        _ = RuleFor(x => x.Password).NotEmpty();
+    }
 }
