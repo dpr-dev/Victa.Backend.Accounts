@@ -123,8 +123,11 @@ public sealed class AccountController : ApiController
         {
             result = await _mediator.Send(new RegisterViaPasswordRequest(source));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex,
+                "Unable to process user registration");
+
             throw;
         }
 
@@ -206,7 +209,7 @@ public sealed class AccountController : ApiController
 public class PasswordRegistrationBodyValidator : AbstractValidator<PasswordRegistrationBody>
 {
     public PasswordRegistrationBodyValidator()
-    { 
+    {
         _ = RuleFor(x => x.Email).NotEmpty();
         _ = RuleFor(x => x.UserName).NotEmpty();
         _ = RuleFor(x => x.Password).NotEmpty();
