@@ -29,6 +29,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\Victa.Backend.Accounts.Contracts\Victa.Backend.Accounts.Contracts.csproj" />
     </ItemGroup>
 </Project>

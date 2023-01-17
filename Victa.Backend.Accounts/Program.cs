@@ -1,6 +1,8 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Diagnostics.AspNetCore3;
 
+using Hellang.Middleware.ProblemDetails;
+
 using Microsoft.IdentityModel.Logging;
 
 using Victa.Backend.Accounts.Core.AspNetCore.Authorization;
@@ -52,6 +54,14 @@ builder.Services.AddAuthentication()
     .AddLocalApi();
 
 builder.Services.AddAuthorization(x => x.AddDefaultPolicies());
+builder.Services.AddProblemDetails(cfg =>
+{
+    cfg.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);
+    cfg.IncludeExceptionDetails = (_, ex) =>
+    {
+        return builder.Environment.IsDevelopment();
+    };
+});
 
 
 if (builder.Environment.IsProduction())
@@ -62,8 +72,8 @@ if (builder.Environment.IsProduction())
 
 WebApplication webapp = builder.Build();
 
-webapp.UseHttpLogging();
-webapp.UseHttpsRedirection();
+webapp.UseHttpLogging(); 
+webapp.UseProblemDetails();
 webapp.UseCors();
 webapp.UseRewriter();
 webapp.UseStaticFiles();
