@@ -20,6 +20,11 @@ public static class IdentityServerWebBuilderExtensions
 {
     public static WebApplicationBuilder ConfigureIdentityServer(this WebApplicationBuilder builder)
     {
+        Microsoft.IdentityModel.Tokens.JsonWebKey? jwk =
+            builder.Configuration.GetSection("SigningCredentials")
+                .Get<Microsoft.IdentityModel.Tokens.JsonWebKey>()
+                    ?? throw new InvalidOperationException("Unable to parse JWK key"); 
+
         _ = builder.Services
             .AddIdentityServer()
             .AddClientStore<ClientStore>()
@@ -29,7 +34,8 @@ public static class IdentityServerWebBuilderExtensions
             .AddProfileService<ProfileService>()
             .AddResourceOwnerValidator<ResourceOwnerValidator>()
             .AddExtensionGrantValidator<ExtensionGrantValidator>()
-            .AddDeveloperSigningCredential();
+            .AddSigningCredential(jwk, jwk.Alg);
+
 
         _ = builder.Services.AddScoped<UserStore>();
         _ = builder.Services.AddScoped<IGrantHandler, GoogleGrantHandler>();
