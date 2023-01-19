@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
 
+using FluentValidation;
+
 using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,16 +17,16 @@ using Victa.Backend.Accounts.Core.AspNetCore.Authorization;
 using Victa.Backend.Accounts.Core.AspNetCore.Mvc;
 using Victa.Backend.Accounts.Domain.Models.UserAggregate;
 
-namespace Victa.Backend.Accounts.Controllers.Accounts;
+namespace Victa.Backend.Accounts.Controllers.Account;
 
 [ApiController]
-[Route("api/v1/accounts")]
-public sealed class AccountsController : ApiController
+[Route("api/v1/account")]
+public sealed class AccountController : ApiController
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<AccountsController> _logger;
+    private readonly ILogger<AccountController> _logger;
 
-    public AccountsController(IMediator mediator, ILogger<AccountsController> logger)
+    public AccountController(IMediator mediator, ILogger<AccountController> logger)
     {
         if (mediator is null)
         {
@@ -83,9 +85,37 @@ public sealed class AccountsController : ApiController
     }
 
 
+
+    [HttpPut("password")]
+    [AuthorizeCustomer]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordBody body,
+        [FromServices] UserManager<AccountsUser> userManager)
+    {
+        AccountsUser? user = await userManager.FindByIdAsync(UserId);
+        if (user is null)
+        {
+            return Problem(statusCode: HttpStatusCode.InternalServerError, detail: "unnknown_authenticated_user");
+        }
+
+        string encodedPassword = userManager.PasswordHasher.HashPassword(user, body.Password);
+
+        user.PasswordHash = encodedPassword;
+
+        IdentityResult result = await userManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            return NoContent();
+        }
+
+        return Problem(statusCode: HttpStatusCode.InternalServerError);
+    }
+
+
     #region Registration
     [AllowAnonymous]
-    [HttpPost("registration/password")]
+    [HttpPost("register/password")]
     public async Task<IActionResult> Register([FromBody] PasswordRegistrationBody source)
     {
         RegisterViaPasswordResponse result;
@@ -170,4 +200,15 @@ public sealed class AccountsController : ApiController
         return NoContent();
     }
     #endregion
+}
+
+
+public class PasswordRegistrationBodyValidator : AbstractValidator<PasswordRegistrationBody>
+{
+    public PasswordRegistrationBodyValidator()
+    { 
+        _ = RuleFor(x => x.Email).NotEmpty();
+        _ = RuleFor(x => x.UserName).NotEmpty();
+        _ = RuleFor(x => x.Password).NotEmpty();
+    }
 }

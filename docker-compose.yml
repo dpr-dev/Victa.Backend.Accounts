@@ -20,7 +20,7 @@ services:
       dockerfile: Victa.Backend.Accounts/Dockerfile.develop
       args: 
         BUILD_CONFIGURATION: Debug
-    depends_on: [mongo, jaeger]
+    depends_on: [mongo]
     environment:
       # db
       DB_NAME: Accounts
