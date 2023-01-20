@@ -69,6 +69,26 @@ if (builder.Environment.IsProduction())
     _ = builder.Logging.ClearProviders();
     _ = builder.Services.AddGoogleDiagnosticsForAspNetCore();
 }
+else
+{
+    string? project =
+        builder.Configuration.GetValue<string>("GCLOUD_PROJECT")
+        ?? builder.Configuration.GetValue<string>("GOOGLE_CLOUD_PROJECT")
+        ?? builder.Configuration.GetValue<string>("GCP_PROJECT_ID");
+
+    _ = builder.Services.AddGoogleTraceForAspNetCore(new AspNetCoreTraceOptions()
+    {
+        ServiceOptions = new Google.Cloud.Diagnostics.Common.TraceServiceOptions
+        {
+            ProjectId = project, 
+        }
+    });
+
+    _ = builder.Services.AddGoogleErrorReportingForAspNetCore(new Google.Cloud.Diagnostics.Common.ErrorReportingServiceOptions
+    {
+        ProjectId = project
+    });
+}
 
 WebApplication webapp = builder.Build();
 
