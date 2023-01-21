@@ -4,4 +4,10 @@ namespace Victa.Backend.Accounts.Application.Accounts.Handlers.Validation.Valida
 
 public sealed class ValidateEmailRequest : IRequest<ValidateEmailResponse>
 {
+    public ValidateEmailRequest(string? email)
+    {
+        Email = email;
+    }
+
+    public string? Email { get; }
 }
