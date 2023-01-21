@@ -7,9 +7,12 @@
     <DockerLaunchAction>None</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerComposeProjectName>victa-backend-accounts</DockerComposeProjectName>
+    <AdditionalComposeFilePaths>docker-compose.override.yml</AdditionalComposeFilePaths>
   </PropertyGroup>
-  
   <ItemGroup>
+    <None Include="docker-compose.override.yml"> 
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>

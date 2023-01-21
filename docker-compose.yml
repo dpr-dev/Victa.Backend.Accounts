@@ -17,9 +17,7 @@ services:
     container_name: accounts-service
     build:
       context: .
-      dockerfile: Victa.Backend.Accounts/Dockerfile.develop
-      args: 
-        BUILD_CONFIGURATION: Debug
+      dockerfile: Victa.Backend.Accounts/Dockerfile.develop 
     depends_on: [mongo]
     environment:
       # db
@@ -31,9 +29,10 @@ services:
       # GCP
       GCP_PROJECT_ID: victa-dev-366313
       GOOGLE_CLOUD_PROJECT: victa-dev-366313
-
-      JAEGER_AGENT_HOST: jaeger
-      JAEGER_AGENT_PORT: 6831
+      GCLOUD_PROJECT: victa-dev-366313
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/key.json
+      
+      RESOURCE_PREFIX: local
     ports:
       - "16000:80"
 
