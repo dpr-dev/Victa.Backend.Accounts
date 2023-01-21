@@ -10,4 +10,7 @@ public sealed class LogoutResponse : OneOfBase<Success, ExecutionError>
     public LogoutResponse(OneOf<Success, ExecutionError> input) : base(input)
     {
     }
+
+    public static LogoutResponse Success { get; } = new LogoutResponse(new Success());
+    public static LogoutResponse Unhandled { get; } = new LogoutResponse(new UnhandledError());
 }
