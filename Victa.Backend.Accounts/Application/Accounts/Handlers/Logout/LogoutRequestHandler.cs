@@ -32,7 +32,7 @@ public sealed class LogoutRequestHandler
             _logger.LogInformation(
                 "Firebase token exists, add to builders");
 
-            builders.Add(Builders<AccountsUser>.Update.PullFilter(x => x.FirebaseTokens, request.FirebaseToken));
+            builders.Add(Builders<AccountsUser>.Update.Pull(x => x.FirebaseTokens, request.FirebaseToken));
         }
 
         try
