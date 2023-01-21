@@ -1,11 +1,10 @@
 ﻿using MediatR;
 
-namespace Victa.Backend.Accounts.Application.Accounts.Handlers.Logout;
+namespace Victa.Backend.Accounts.Application.Accounts.Handlers.Configure;
 
-
-public sealed class LogoutRequest : IRequest<LogoutResponse>
+public sealed class ConfigureRequest : IRequest<ConfigureResponse>
 {
-    public LogoutRequest(string userId, string? firebaseToken)
+    public ConfigureRequest(string userId, string? firebaseToken)
     {
         if (string.IsNullOrWhiteSpace(userId))
         {

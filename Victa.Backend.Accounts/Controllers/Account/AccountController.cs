@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
+﻿using System.Net;
 
-using FluentValidation;
+using FluentValidation.Results;
 
 using MediatR;
 
@@ -9,8 +8,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Configure;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.GetMe;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Logout;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.Registration.RegisterViaPassword;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.RequestDeletion;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Validation.ValidateEmail;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Validation.ValidateUsername;
 using Victa.Backend.Accounts.Contracts.Input.Accounts;
 using Victa.Backend.Accounts.Contracts.Input.Accounts.Validation;
 using Victa.Backend.Accounts.Core.AspNetCore.Authorization;
@@ -51,8 +55,11 @@ public sealed class AccountController : ApiController
         {
             result = await _mediator.Send(new GetMeRequest(UserId));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex,
+                "Unable to process request");
+
             return Problem(statusCode: HttpStatusCode.InternalServerError);
         }
 
@@ -60,35 +67,67 @@ public sealed class AccountController : ApiController
     }
 
     [HttpDelete]
-    [ProducesResponseType(204)]
+    [HttpPost("request-deletion")]
     [AuthorizeCustomer]
-    public Task<IActionResult> Delete()
+    public async Task<IActionResult> RequestDeletion()
     {
-        throw new NotImplementedException();
+        RequestDeletionResponse result;
+        try
+        {
+            result = await _mediator.Send(new RequestDeletionRequest(UserId));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Unable to process request");
+
+            throw;
+        }
+
+        return result.Match(_ => NoContent(), Error);
     }
 
     [HttpPost("configure")]
-    [ProducesResponseType(400, Type = typeof(ValidationProblemDetails))]
     [AuthorizeCustomer]
-    public Task<IActionResult> Configure()
+    public async Task<IActionResult> Configure([FromBody] ConfigureBody body)
     {
-        throw new NotImplementedException();
+        ConfigureResponse result;
+        try
+        {
+            result = await _mediator.Send(new ConfigureRequest(UserId, body.FirebaseToken));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unable to process request");
+
+            throw;
+        }
+
+        return result.Match(_ => NoContent(), Error);
     }
 
     [HttpPost("logout")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400, Type = typeof(ValidationProblemDetails))]
     [AuthorizeCustomer]
-    public Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout([FromBody] LogoutBody body)
     {
-        throw new NotImplementedException();
+        LogoutResponse result;
+        try
+        {
+            result = await _mediator.Send(new LogoutRequest(UserId, body.FirebaseToken));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Unable to process request");
+
+            throw;
+        }
+
+        return result.Match(_ => NoContent(), Error);
     }
-
-
 
     [HttpPut("password")]
     [AuthorizeCustomer]
-    [ProducesResponseType(204)]
     public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordBody body,
         [FromServices] UserManager<AccountsUser> userManager)
     {
@@ -126,7 +165,7 @@ public sealed class AccountController : ApiController
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Unable to process user registration");
+                "Unable to process request");
 
             throw;
         }
@@ -136,82 +175,53 @@ public sealed class AccountController : ApiController
     #endregion
 
 
-
     #region Validation
     [HttpPost("validation/email")]
-    public async Task<IActionResult> ValidateEmail([FromBody] ValidateEmailRequestBody request,
-        [FromServices] UserManager<AccountsUser> userManager,
-        [FromServices] IdentityErrorDescriber errorDescriber)
+    public async Task<IActionResult> ValidateEmail([FromBody] ValidateEmailRequestBody request)
     {
-        string? email = request.Value;
-        if (string.IsNullOrEmpty(email))
+        ValidateEmailResponse result;
+        try
         {
-            ModelState.AddModelError(nameof(email), errorDescriber.InvalidEmail(email).Code);
+            result = await _mediator.Send(new ValidateEmailRequest(request.Value));
         }
-        else if (!new EmailAddressAttribute().IsValid(email))
+        catch (Exception)
         {
-            ModelState.AddModelError(nameof(email), errorDescriber.InvalidEmail(email).Code);
-        }
-        else
-        {
-            AccountsUser? owner = await userManager.FindByEmailAsync(email).ConfigureAwait(false);
-            if (owner is { })
-            {
-                ModelState.AddModelError(nameof(email), errorDescriber.DuplicateEmail(email).Code);
-            }
+            throw;
         }
 
-        if (!ModelState.IsValid)
-        {
-            return ValidationProblem(modelStateDictionary: ModelState);
-        }
-
-        return NoContent();
-
+        return result.Match(HandleValidationResult, Error);
     }
 
     [HttpPost("validation/username")]
-    public async Task<IActionResult> ValidateUserName([FromBody] ValidateUserNameRequestBody request,
-        [FromServices] UserManager<AccountsUser> userManager,
-        [FromServices] IdentityErrorDescriber errorDescriber)
+    public async Task<IActionResult> ValidateUserName([FromBody] ValidateUserNameRequestBody request)
     {
-        string? userName = request.Value;
-        UserOptions userOptions = userManager.Options.User;
-        if (string.IsNullOrEmpty(userName))
+        ValidateUsernameResponse result;
+        try
         {
-            ModelState.AddModelError(nameof(userName), errorDescriber.InvalidUserName(userName).Code);
+            result = await _mediator.Send(new ValidateUsernameRequest(request.Value));
         }
-        else if (!string.IsNullOrEmpty(userOptions.AllowedUserNameCharacters)
-            && userName.Any(c => !userOptions.AllowedUserNameCharacters.Contains(c)))
+        catch (Exception)
         {
-            ModelState.AddModelError(nameof(userName), errorDescriber.InvalidUserName(userName).Code);
-        }
-        else
-        {
-            AccountsUser? owner = await userManager.FindByNameAsync(userName).ConfigureAwait(false);
-            if (owner is { })
-            {
-                ModelState.AddModelError(nameof(userName), errorDescriber.DuplicateUserName(userName).Code);
-            }
+            throw;
         }
 
-        if (!ModelState.IsValid)
+        return result.Match(HandleValidationResult, Error);
+    }
+
+
+    private IActionResult HandleValidationResult(ValidationResult result)
+    {
+        if (result.IsValid)
         {
-            return ValidationProblem(modelStateDictionary: ModelState);
+            return NoContent();
         }
 
-        return NoContent();
+        foreach (ValidationFailure error in result.Errors)
+        {
+            ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+        }
+
+        return ValidationProblem(ModelState);
     }
     #endregion
-}
-
-
-public class PasswordRegistrationBodyValidator : AbstractValidator<PasswordRegistrationBody>
-{
-    public PasswordRegistrationBodyValidator()
-    {
-        _ = RuleFor(x => x.Email).NotEmpty();
-        _ = RuleFor(x => x.UserName).NotEmpty();
-        _ = RuleFor(x => x.Password).NotEmpty();
-    }
 }
