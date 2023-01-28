@@ -49,8 +49,8 @@ internal class PubSubServiceBus : IServiceBus
         _credential = credential;
         _eventTypesTopicMappings = new Dictionary<Type, string>
         {
-            { typeof(UserCreated), "accounts.user.created" },
-            { typeof(UserUpdated), "accounts.user.updated" },
+            { typeof(AccountsUserCreated), "accounts.user.created" },
+            { typeof(AccountsUserUpdated), "accounts.user.updated" },
         };
     }
 

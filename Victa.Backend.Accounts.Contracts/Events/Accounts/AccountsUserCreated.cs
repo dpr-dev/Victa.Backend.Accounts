@@ -2,7 +2,7 @@
 
 namespace Victa.Backend.Accounts.Contracts.Events.Accounts;
 
-public sealed class UserUpdated
+public sealed class AccountsUserCreated
 {
     public OAccountsUser AccountsUser { get; set; }
 }

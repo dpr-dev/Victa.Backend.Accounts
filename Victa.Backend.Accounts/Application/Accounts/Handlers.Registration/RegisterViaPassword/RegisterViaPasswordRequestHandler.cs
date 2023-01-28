@@ -52,7 +52,6 @@ public class RegisterViaPasswordRequestHandler
         _bus = bus;
     }
 
-    // TODO: send event about created account
     public async Task<RegisterViaPasswordResponse> Handle(RegisterViaPasswordRequest request,
         CancellationToken cancellationToken)
     {
@@ -81,21 +80,16 @@ public class RegisterViaPasswordRequestHandler
         OAccountsUser output =
             _mapper.Map<OAccountsUser>(user);
 
-        await SendEvent(output);
-
-        return RegisterViaPasswordResponse.Success(output);
-    }
-
-    private async Task SendEvent(OAccountsUser output)
-    {
         try
         {
-            await _bus.Publish(new UserCreated { AccountsUser = output });
+            await _bus.Publish(new AccountsUserCreated { AccountsUser = output });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
                 "Unable to send event about user creation");
         }
+
+        return RegisterViaPasswordResponse.Success(output);
     }
 }
