@@ -61,6 +61,8 @@ public class RegisterViaPasswordRequestHandler
             Age = request.Source.Age,
             InvitedBy = request.Source.InvitedBy,
             PromotedBy = request.Source.PromotedBy,
+
+            // TODO: remove in the feature releases
             AvatarId = request.Source.AvatarId,
             Gender = request.Source.Gender switch
             {
@@ -77,9 +79,7 @@ public class RegisterViaPasswordRequestHandler
             return RegisterViaPasswordResponse.Unhandled;
         }
 
-        OAccountsUser output =
-            _mapper.Map<OAccountsUser>(user);
-
+        OAccountsUser output = _mapper.Map<OAccountsUser>(user);
         try
         {
             await _bus.Publish(new AccountsUserCreated { AccountsUser = output });
@@ -87,7 +87,8 @@ public class RegisterViaPasswordRequestHandler
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Unable to send event about user creation");
+                "Unable to send event about user (Id={id}) creation",
+                user.Id);
         }
 
         return RegisterViaPasswordResponse.Success(output);

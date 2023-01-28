@@ -3,6 +3,7 @@
 using OneOf;
 
 using Victa.Backend.Accounts.Core.Errors;
+using Victa.Backend.Accounts.Domain;
 
 namespace Victa.Backend.Accounts.Application.Accounts.Handlers.Validation.ValidateUsername;
 
@@ -13,6 +14,10 @@ public sealed class ValidateUsernameResponse : OneOfBase<ValidationResult, Execu
     {
     }
 
+    public static ValidateUsernameResponse Unhandled { get; } = Failure(new UnhandledError
+    {
+        Code = ErrorCodes.Unhandled
+    });
 
     public static ValidateUsernameResponse Failure(ExecutionError data)
     {

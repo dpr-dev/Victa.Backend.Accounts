@@ -33,7 +33,7 @@ public sealed class ValidateEmailRequestHandler
                 "Unable to validate email (Email={value})",
                 request.Email);
 
-            throw;
+            return ValidateEmailResponse.Unhandled;
         }
 
         return ValidateEmailResponse.Success(result);

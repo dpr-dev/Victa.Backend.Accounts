@@ -5,21 +5,25 @@ using FluentValidation.Results;
 using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 using Victa.Backend.Accounts.Application.Accounts.Handlers.Configure;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.GetMe;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.Logout;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Password.ChangePassword;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Password.CreateRecoveryCode;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Password.HandleRecoveryCode;
+using Victa.Backend.Accounts.Application.Accounts.Handlers.Password.VerifyPassword;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.Registration.RegisterViaPassword;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.RequestDeletion;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.Validation.ValidateEmail;
 using Victa.Backend.Accounts.Application.Accounts.Handlers.Validation.ValidateUsername;
+
 using Victa.Backend.Accounts.Contracts.Input.Accounts;
 using Victa.Backend.Accounts.Contracts.Input.Accounts.Validation;
+
 using Victa.Backend.Accounts.Core.AspNetCore.Authorization;
 using Victa.Backend.Accounts.Core.AspNetCore.Mvc;
-using Victa.Backend.Accounts.Domain.Models.UserAggregate;
 
 namespace Victa.Backend.Accounts.Controllers.Account;
 
@@ -126,30 +130,77 @@ public sealed class AccountController : ApiController
         return result.Match(_ => NoContent(), Error);
     }
 
-    [HttpPut("password")]
     [AuthorizeCustomer]
-    public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordBody body,
-        [FromServices] UserManager<AccountsUser> userManager)
+    [HttpPut("password")]
+    public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordBody body)
     {
-        AccountsUser? user = await userManager.FindByIdAsync(UserId);
-        if (user is null)
+        ChangePasswordResponse result;
+        try
         {
-            return Problem(statusCode: HttpStatusCode.InternalServerError, detail: "unnknown_authenticated_user");
+            result = await _mediator.Send(new ChangePasswordRequest(UserId, body.Password));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Unable to process request");
+
+            throw;
         }
 
-        string encodedPassword = userManager.PasswordHasher.HashPassword(user, body.Password);
-
-        user.PasswordHash = encodedPassword;
-
-        IdentityResult result = await userManager.UpdateAsync(user);
-
-        if (result.Succeeded)
-        {
-            return NoContent();
-        }
-
-        return Problem(statusCode: HttpStatusCode.InternalServerError);
+        return result.Match(_ => NoContent(), Error);
     }
+
+    [AuthorizeCustomer]
+    [HttpPost("password/verification")]
+    public async Task<IActionResult> ValidatePassword([FromBody] VerifyPasswordBody body)
+    {
+        VerifyPasswordResponse result;
+        try
+        {
+            result = await _mediator.Send(new VerifyPasswordRequest(UserId, body.Password));
+        }
+        catch (Exception)
+        {
+            return Problem(statusCode: HttpStatusCode.InternalServerError);
+        }
+
+        return result.Match(_ => NoContent(), Error);
+    }
+
+
+
+    [HttpPost("password/forgot")]
+    public async Task<IActionResult> ForgotPassword([FromBody] CreateRecoveryCodeBody body)
+    {
+        CreateRecoveryCodeResponse result;
+        try
+        {
+            result = await _mediator.Send(new CreateRecoveryCodeRequest(body.Email));
+        }
+        catch (Exception)
+        {
+            return Problem(statusCode: HttpStatusCode.InternalServerError);
+        }
+
+        return result.Match(_ => NoContent(), Error);
+    }
+
+    [HttpPost("password/restore")]
+    public async Task<IActionResult> ResotrePassword([FromBody] RestorePasswordWithRecoveryCodeBody body)
+    {
+        HandleRecoveryCodeResponse result;
+        try
+        {
+            result = await _mediator.Send(new HandleRecoveryCodeRequest(body.Email, body.RecoveryCode, body.Password));
+        }
+        catch (Exception)
+        {
+            return Problem(statusCode: HttpStatusCode.InternalServerError);
+        }
+
+        return result.Match(_ => NoContent(), Error);
+    }
+
 
 
     #region Registration

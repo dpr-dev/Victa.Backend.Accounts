@@ -11,7 +11,7 @@ public sealed class ValidateUsernameRequestHandler
     private readonly IValidator<ValidateUsernameRequest> _validator;
 
     public ValidateUsernameRequestHandler(
-        ILogger<ValidateUsernameRequestHandler> logger, 
+        ILogger<ValidateUsernameRequestHandler> logger,
         IValidator<ValidateUsernameRequest> validator)
     {
         _logger = logger;
@@ -31,9 +31,9 @@ public sealed class ValidateUsernameRequestHandler
         {
             _logger.LogError(ex,
                 "Unable to validate username (UserName={value})",
-                request.Username); 
+                request.Username);
 
-            throw;
+            return ValidateUsernameResponse.Unhandled;
         }
 
         return ValidateUsernameResponse.Success(result);

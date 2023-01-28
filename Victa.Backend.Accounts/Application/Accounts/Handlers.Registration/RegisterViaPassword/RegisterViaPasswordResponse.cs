@@ -2,7 +2,7 @@
 
 using Victa.Backend.Accounts.Contracts.Output.Accounts;
 using Victa.Backend.Accounts.Core.Errors;
-
+using Victa.Backend.Accounts.Domain;
 
 namespace Victa.Backend.Accounts.Application.Accounts.Handlers.Registration.RegisterViaPassword;
 
@@ -13,7 +13,10 @@ public sealed class RegisterViaPasswordResponse : OneOfBase<OAccountsUser, Execu
     {
     }
 
-    public static RegisterViaPasswordResponse Unhandled { get; } = Failure(new UnhandledError { });
+    public static RegisterViaPasswordResponse Unhandled { get; } = Failure(new UnhandledError
+    {
+        Code = ErrorCodes.Unhandled
+    });
 
 
     public static RegisterViaPasswordResponse Failure(ExecutionError data)

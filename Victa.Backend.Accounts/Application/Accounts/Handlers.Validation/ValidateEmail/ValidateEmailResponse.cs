@@ -3,6 +3,7 @@
 using OneOf;
 
 using Victa.Backend.Accounts.Core.Errors;
+using Victa.Backend.Accounts.Domain;
 
 namespace Victa.Backend.Accounts.Application.Accounts.Handlers.Validation.ValidateEmail;
 
@@ -13,6 +14,10 @@ public sealed class ValidateEmailResponse : OneOfBase<ValidationResult, Executio
     {
     }
 
+    public static ValidateEmailResponse Unhandled { get; } = Failure(new UnhandledError
+    {
+        Code = ErrorCodes.Unhandled
+    });
 
     public static ValidateEmailResponse Failure(ExecutionError data)
     {

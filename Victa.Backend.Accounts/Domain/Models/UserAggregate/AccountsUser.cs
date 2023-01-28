@@ -26,9 +26,11 @@ public class AccountsUser : IdentityUser<string>
         Claims = new List<IdentityUserClaim<string>>();
         Logins = new List<IdentityUserLogin<string>>();
         Tokens = new List<IdentityUserToken<string>>();
+        PasswordRecoveryTokens = new List<PasswordRecoveryToken>();
         CompletionSteps = new CompletionSteps
         {
         };
+
     }
 
     public string? Name { get; set; }
@@ -56,7 +58,58 @@ public class AccountsUser : IdentityUser<string>
     [Obsolete]
     public string? AvatarId { get; set; }
     public CompletionSteps CompletionSteps { get; set; }
+    public List<PasswordRecoveryToken> PasswordRecoveryTokens { get; set; }
 
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
+
+    public async Task<PasswordRecoveryToken> GeneratePasswordRecoveryToken(Func<AccountsUser, Task<string>> recoveryTokenGenerator)
+    {
+        if (PasswordRecoveryTokens is null)
+        {
+            PasswordRecoveryTokens = new List<PasswordRecoveryToken>();
+        }
+
+        PasswordRecoveryTokens.ForEach(token =>
+        {
+            token.TokenState = PasswordRecoveryTokenState.Expired;
+        });
+
+        var recoveryToken = new PasswordRecoveryToken
+        {
+            CreatedDate = DateTime.UtcNow,
+            TokenState = PasswordRecoveryTokenState.Pending,
+            RecoveryCode = await recoveryTokenGenerator(this),
+        };
+
+        PasswordRecoveryTokens.Add(recoveryToken);
+
+        return recoveryToken;
+    }
+
+    public async Task<IdentityResult> ChangePassword(
+        Func<string, string> hashPassword,
+        Func<string, Task<IdentityResult>> validatePassword,
+        string password)
+    {
+        if (hashPassword is null)
+        {
+            throw new ArgumentNullException(nameof(hashPassword));
+        }
+
+        if (validatePassword is null)
+        {
+            throw new ArgumentNullException(nameof(validatePassword));
+        }
+
+        IdentityResult validationResult = await validatePassword(password);
+        if (!validationResult.Succeeded)
+        {
+            return validationResult;
+        }
+
+        PasswordHash = hashPassword(password);
+
+        return IdentityResult.Success;
+    }
 }

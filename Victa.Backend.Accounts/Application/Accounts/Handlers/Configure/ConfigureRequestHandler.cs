@@ -52,7 +52,7 @@ public sealed class ConfigureRequestHandler
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Unable to update user (UserId={user})",
+                "Unable to update user (Id={id})",
                 request.UserId);
 
             return ConfigureResponse.Unhandled;
