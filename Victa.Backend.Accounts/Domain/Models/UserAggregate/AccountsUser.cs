@@ -30,7 +30,6 @@ public class AccountsUser : IdentityUser<string>
         CompletionSteps = new CompletionSteps
         {
         };
-
     }
 
     public string? Name { get; set; }
@@ -38,11 +37,11 @@ public class AccountsUser : IdentityUser<string>
     public string? Picture { get; set; }
     public string? ZoneInfo { get; set; }
     public string? Locale { get; set; }
-    public List<string> Roles { get; set; }
-    public List<string> FirebaseTokens { get; set; }
-    public List<IdentityUserClaim<string>> Claims { get; set; }
-    public List<IdentityUserLogin<string>> Logins { get; set; }
-    public List<IdentityUserToken<string>> Tokens { get; set; }
+    public List<string> Roles { get; set; } = null!;
+    public List<string> FirebaseTokens { get; set; } = null!;
+    public List<IdentityUserClaim<string>> Claims { get; set; } = null!;
+    public List<IdentityUserLogin<string>> Logins { get; set; } = null!;
+    public List<IdentityUserToken<string>> Tokens { get; set; } = null!;
     public Gender? Gender { get; set; }
     public DateTime? BirthDate { get; set; }
     public string? Address { get; set; }
@@ -57,8 +56,8 @@ public class AccountsUser : IdentityUser<string>
     /// </summary>
     [Obsolete]
     public string? AvatarId { get; set; }
-    public CompletionSteps CompletionSteps { get; set; }
-    public List<PasswordRecoveryToken> PasswordRecoveryTokens { get; set; }
+    public CompletionSteps CompletionSteps { get; set; } = null!;
+    public List<PasswordRecoveryToken> PasswordRecoveryTokens { get; set; } = null!;
 
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
